@@ -1,0 +1,183 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRRRR Deal Analyzer</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:24px;background:#f5f5f2;color:#172018}h1{margin-bottom:4px}.sub{color:#667066}.usage{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.usage .metric{text-align:center}.usage button{margin-top:8px;background:#687268;padding:9px}.usage-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{background:white;border:1px solid #ddd;border-radius:16px;padding:18px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.metric{background:#f7f8f5;border-radius:12px;padding:14px}.metric small{display:block;color:#687268}.metric strong{font-size:1.35rem}label{display:block;font-weight:650;margin:12px 0 6px}input,button{box-sizing:border-box;width:100%;font:inherit;padding:13px;border-radius:10px;border:1px solid #bbb}button{margin-top:16px;background:#193d2b;color:white;border:0;font-weight:700;cursor:pointer}.range{font-size:1.05rem}.good{font-weight:800}.muted{color:#687268;font-size:.9rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:9px;border-bottom:1px solid #eee}details{margin-top:12px}#error{color:#9b2c2c}.hidden{display:none}@media(max-width:520px){body{padding:14px}.usage{grid-template-columns:1fr 1fr}.usage .metric:last-child{grid-column:1/-1}.card{padding:14px}table{font-size:.8rem}th,td{padding:7px 4px}}.usage-card{padding:10px 12px;margin:10px 0}.usage-card .muted{font-size:.72rem}.usage-inline{display:flex;align-items:center;justify-content:space-between;gap:10px}.usage-inline strong{font-size:1.05rem}.usage-actions{display:flex;gap:8px;margin-top:8px}.usage-actions button{margin:0;padding:7px 9px;font-size:.78rem}.usage-note{margin:7px 0 0;font-size:.7rem}.deal-card{padding:22px 18px}.deal-card label{font-size:1.08rem;margin-top:16px}.deal-card input{padding:18px 15px;font-size:1.15rem;min-height:58px}.deal-card button{padding:18px;font-size:1.12rem;min-height:58px}@media(max-width:520px){.deal-card{padding:22px 16px}.deal-card input{font-size:1.18rem}.usage-card{padding:9px 11px}} .rehab-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}.rehab-levels button{margin:0;padding:10px 4px;background:#f4f5f2;color:#193d2b;border:1px solid #ccd2cc;font-size:.82rem}.rehab-levels button.active{background:#193d2b;color:white;border-color:#193d2b}.rehab-levels small{font-size:.68rem;font-weight:500}@media(max-width:520px){.rehab-levels{gap:4px}.rehab-levels button{padding:9px 2px;font-size:.75rem}} 
+.advanced-gap{height:26px}
+.advanced-card{border:2px solid #cbd5cc}
+.advanced-title{margin:3px 0 5px}
+.adv-current{background:#f7f8f5;border-radius:10px;padding:11px 12px;margin:12px 0;font-weight:650}
+.evidence{margin-top:14px}
+.evidence-row{padding:11px 0;border-bottom:1px solid #eee}
+.conf{display:inline-block;font-size:.7rem;font-weight:800;padding:3px 7px;border-radius:999px;background:#ecefeb;margin-left:5px}
+.adv-note{margin-top:10px}
+@media(max-width:520px){.advanced-gap{height:18px}.advanced-card input{min-height:52px;font-size:1.05rem}}
+
+.math-audit{margin-top:22px;border-top:1px solid #dfe4df;padding-top:16px}
+.math-audit summary{cursor:pointer;font-weight:800}
+.math-block{background:#f7f8f5;border-radius:10px;padding:12px;margin-top:10px}
+.math-line{padding:3px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.84rem;overflow-wrap:anywhere}
+.math-link{display:inline-block;margin-top:12px;font-weight:750}
+</style></head><body><h1>BRRRR Deal Analyzer</h1><div class="sub">Address + purchase price → comps, ARV, refinance and cash-out picture.</div><div class="muted" style="margin-top:6px;font-size:.76rem">⚠️ Personal phones only for analyses.</div><div class="card usage-card">
+<div class="usage-inline"><span class="muted">RENTCAST USAGE</span><strong id="uRequests">0 / 50</strong><span class="muted"><span id="uRemaining">50</span> left</span></div>
+<div class="muted" id="uReset" style="margin-top:5px">Reset date: not set</div>
+<div class="usage-actions"><button type="button" id="syncUsage">Sync</button><button type="button" id="setReset">Reset date</button></div>
+<p class="muted usage-note">Counter is stored in this browser.</p>
+</div><div class="card deal-card"><form id="form"><label>Property address</label><input id="address" required placeholder="1309 S 9th Street, Ozark, MO 65721"><label>Purchase / offer price</label><input id="purchase" required type="number" min="1000" step="1000" placeholder="100000"><details><summary>Deal assumptions</summary>
+    <label>Renovation level</label>
+    <div class="rehab-levels">
+      <button type="button" class="rehab-choice" data-rate="10">Light<br><small>$10/sq ft</small></button>
+      <button type="button" class="rehab-choice active" data-rate="25">Medium<br><small>$25/sq ft</small></button>
+      <button type="button" class="rehab-choice" data-rate="50">Heavy<br><small>$50/sq ft</small></button>
+      <button type="button" class="rehab-choice" data-rate="80">Full Gut<br><small>$80/sq ft</small></button>
+    </div>
+    <input id="rehabRate" type="hidden" value="25">
+    <div class="grid"><div><label>Rehab estimate</label><input id="rehab" type="number" min="0" placeholder="Auto from renovation level"></div><div><label>Other costs</label><input id="other" type="number" min="0" placeholder="Auto"></div><div><label>Refi LTV %</label><input id="ltv" type="number" min="1" max="100" value="75"></div></div></details><button>Analyze Deal</button></form><p id="error"></p></div><div id="results" class="hidden"><div class="card"><div class="muted">SIMPLE CALCULATOR — ESTIMATED ARV</div><h2 id="arv"></h2><div class="range" id="arvRange"></div><div class="muted" id="subject"></div><div class="muted" id="arvMethod" style="margin-top:6px"></div></div><div class="grid"><div class="metric"><small>Purchase</small><strong id="mPurchase"></strong></div><div class="metric"><small>Rehab</small><strong id="mRehab"></strong></div><div class="metric"><small>Total basis</small><strong id="mBasis"></strong></div><div class="metric"><small>Refinance</small><strong id="mRefi"></strong></div><div class="metric"><small>Cash result</small><strong id="mCash"></strong></div><div class="metric"><small>Equity remaining</small><strong id="mEquity"></strong></div><div class="metric"><small>Max purchase*</small><strong id="mMax"></strong></div></div><div class="card"><h3>Comparable properties</h3><div style="overflow-x:auto"><table><thead><tr><th>Address</th><th>Price</th><th>Beds/Baths</th><th>Sq Ft</th><th>Similarity</th></tr></thead><tbody id="comps"></tbody></table></div><p class="muted">*Max purchase estimates the purchase price that would allow the refinance proceeds to cover rehab and other costs at the selected LTV.</p></div>
+<div class="advanced-gap"></div>
+<div class="card advanced-card">
+  <div class="muted">ADVANCED CALCULATOR</div>
+  <h2 class="advanced-title">Test After-Renovation Changes</h2>
+  <p class="muted" style="margin-top:0">Separate from Simple. Uses the same comps already loaded, so changing this section does not run another RentCast request or change the Simple results.</p>
+  <div id="advCurrent" class="adv-current"></div>
+  <div class="grid">
+    <div><label>After-renovation bedrooms</label><input id="advBeds" type="number" min="0" step="1"></div>
+    <div><label>After-renovation bathrooms</label><input id="advBaths" type="number" min="0" step=".5"></div>
+    <div><label>After-renovation sq ft</label><input id="advSqft" type="number" min="100" step="1"></div>
+  </div>
+  <label>Estimated extra cost for these changes</label>
+  <input id="advCost" type="number" min="0" step="500" value="0">
+  <button type="button" id="advCalc">Calculate Advanced Scenario</button>
+
+  <div id="advOutput" class="hidden" style="margin-top:16px">
+    <div class="grid">
+      <div class="metric"><small>Simple ARV</small><strong id="aBase"></strong></div>
+      <div class="metric"><small>Advanced ARV</small><strong id="aArv"></strong></div>
+      <div class="metric"><small>Appraisal increase</small><strong id="aIncrease"></strong></div>
+      <div class="metric"><small>Extra refi proceeds</small><strong id="aRefi"></strong></div>
+      <div class="metric"><small>Value created vs cost</small><strong id="aValue"></strong></div>
+    </div>
+    <div id="advEvidence" class="evidence"></div>
+    <p class="muted adv-note">Advanced adjustments are market estimates from the returned comps, not guaranteed appraisal adjustments. Low-comp estimates are still shown but flagged.</p>
+    <details class="math-audit">
+      <summary>Show the Advanced Math</summary>
+      <div id="advMath"></div>
+    </details>
+    <a class="math-link" href="math.html" target="_blank" rel="noopener">See how the Simple Calculator math works →</a>
+
+  </div>
+</div>
+</div><script>const USAGE_KEY='brrrrRentcastUsageV1';function loadUsage(){try{return JSON.parse(localStorage.getItem(USAGE_KEY))||{analyses:0,requests:0,resetDate:''}}catch(e){return{analyses:0,requests:0,resetDate:''}}}function saveUsage(u){localStorage.setItem(USAGE_KEY,JSON.stringify(u));renderUsage()}function renderUsage(){const u=loadUsage();document.getElementById('uRequests').textContent=(u.requests||0)+' / 50';document.getElementById('uRemaining').textContent=Math.max(0,50-(u.requests||0));document.getElementById('uReset').textContent='Reset date: '+(u.resetDate||'not set')}function recordUsage(requests=1){const u=loadUsage();u.requests=(u.requests||0)+requests;saveUsage(u)}document.addEventListener('DOMContentLoaded',()=>{renderUsage();document.getElementById('syncUsage').onclick=()=>{const u=loadUsage();const n=prompt('Enter the official successful request count shown in your RentCast dashboard:',u.requests||0);if(n===null)return;const v=Number(n);if(Number.isInteger(v)&&v>=0){u.requests=v;saveUsage(u)}else alert('Enter a whole number of 0 or more.');};document.getElementById('setReset').onclick=()=>{const u=loadUsage();const d=prompt('Enter your RentCast billing reset date (example: Nov 3, 2026):',u.resetDate||'');if(d===null)return;u.resetDate=d.trim();saveUsage(u);};});let lastDeal=null;const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Math.round(n||0));document.querySelectorAll('.rehab-choice').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.rehab-choice').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('rehabRate').value=b.dataset.rate;$('rehab').value='';}));$('form').addEventListener('submit',async e=>{e.preventDefault();$('error').textContent='';$('results').classList.add('hidden');const payload={address:$('address').value.trim(),purchasePrice:Number($('purchase').value),rehab:$('rehab').value?Number($('rehab').value):null,rehabRate:Number($('rehabRate').value),otherCosts:$('other').value?Number($('other').value):null,ltv:Number($('ltv').value)/100};try{const r=await fetch('/api/analyze',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(!r.ok)throw new Error(d.error||'Analysis failed');recordUsage(Number(d.rentcastRequests)||1);lastDeal=d;$('arv').textContent=money(d.arv);
+const sb=Number(d.subject?.bedrooms)||0,sba=Number(d.subject?.bathrooms)||0,ss=Number(d.subject?.squareFootage)||0;
+$('advBeds').value=sb||'';$('advBaths').value=sba||'';$('advSqft').value=ss||'';
+$('advCurrent').textContent=`Simple baseline: ${sb||'—'} bed • ${sba||'—'} bath • ${ss?ss.toLocaleString():'—'} sq ft • ${money(d.arv)} ARV`;
+$('advCost').value=0;$('advOutput').classList.add('hidden');$('arvRange').textContent=`Likely range: ${money(d.low)} – ${money(d.high)}`;$('arvMethod').textContent=d.arvMethod||'';$('subject').textContent=[d.subject?.propertyType,d.subject?.bedrooms!=null?d.subject.bedrooms+' bed':'',d.subject?.bathrooms!=null?d.subject.bathrooms+' bath':'',d.subject?.squareFootage?d.subject.squareFootage.toLocaleString()+' sq ft':''].filter(Boolean).join(' • ');$('mPurchase').textContent=money(d.purchasePrice);$('mRehab').textContent=money(d.rehab);$('mBasis').textContent=money(d.totalBasis);$('mRefi').textContent=money(d.refi);$('mCash').textContent=d.cashResult>=0?money(d.cashResult)+' out':money(Math.abs(d.cashResult))+' left in';$('mEquity').textContent=money(d.equity);$('mMax').textContent=money(d.maxPurchase);$('comps').innerHTML=(d.comps||[]).map(c=>`<tr><td>${esc(c.formattedAddress||c.addressLine1||'—')}</td><td>${money(c.price)}</td><td>${c.bedrooms??'—'} / ${c.bathrooms??'—'}</td><td>${c.squareFootage?Number(c.squareFootage).toLocaleString():'—'}</td><td>${c.correlation!=null?Math.round(c.correlation*100)+'%':'—'}</td></tr>`).join('');$('results').classList.remove('hidden')}catch(err){$('error').textContent=err.message}});function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function median(nums){
+  const a=nums.filter(Number.isFinite).sort((x,y)=>x-y);
+  if(!a.length)return null;
+  const m=Math.floor(a.length/2);
+  return a.length%2?a[m]:(a[m-1]+a[m])/2;
+}
+function confidence(n){
+  if(n>=5)return ['GOOD',`${n} qualifying comps`];
+  if(n>=3)return ['MODERATE',`${n} qualifying comps`];
+  if(n===2)return ['LOW','2 qualifying comps'];
+  if(n===1)return ['VERY LOW','1 qualifying comp'];
+  return ['VERY LOW','no direct paired comp'];
+}
+function characteristicAdjustment(comps,key,from,to,subjectSqft){
+  if(Number(from)===Number(to))return {delta:0,n:0,label:'No change',fallback:false};
+  const clean=comps.filter(c=>Number(c.price)>0&&Number(c.squareFootage)>0);
+  const base=clean.filter(c=>Number(c[key])===Number(from));
+  const changed=clean.filter(c=>Number(c[key])===Number(to));
+  const basePpsf=median(base.map(c=>Number(c.price)/Number(c.squareFootage)));
+  const changedPpsf=median(changed.map(c=>Number(c.price)/Number(c.squareFootage)));
+  const pretty=key==='bathrooms'?'Bathroom':'Bedroom';
+  if(basePpsf&&changedPpsf){
+    return {delta:(changedPpsf-basePpsf)*subjectSqft,n:Math.min(base.length,changed.length),label:`${pretty} market adjustment`,fallback:false,basePpsf,changedPpsf,baseCount:base.length,changedCount:changed.length};
+  }
+  const neighborhoodPpsf=median(clean.map(c=>Number(c.price)/Number(c.squareFootage)))||0;
+  // Conservative fallback only when the returned comp set cannot form both groups.
+  // It still produces a number, but the UI explicitly marks it VERY LOW confidence.
+  const factor=key==='bathrooms'?0.05:0.03;
+  return {delta:neighborhoodPpsf*subjectSqft*factor*(Number(to)-Number(from)),n:Math.min(base.length,changed.length),label:`${pretty} fallback estimate`,fallback:true,neighborhoodPpsf,factor,baseCount:base.length,changedCount:changed.length};
+}
+$('advCalc').addEventListener('click',()=>{
+  if(!lastDeal)return;
+  const s=lastDeal.subject||{};
+  const comps=(lastDeal.comps||[]).filter(c=>c.correlation==null||Number(c.correlation)>=.80);
+  const fromBeds=Number(s.bedrooms)||0, fromBaths=Number(s.bathrooms)||0, fromSq=Number(s.squareFootage)||0;
+  const beds=Number($('advBeds').value)||fromBeds;
+  const baths=Number($('advBaths').value)||fromBaths;
+  const sq=Number($('advSqft').value)||fromSq;
+  const cost=Math.max(0,Number($('advCost').value)||0);
+
+  const bedAdj=characteristicAdjustment(comps,'bedrooms',fromBeds,beds,sq);
+  const bathAdj=characteristicAdjustment(comps,'bathrooms',fromBaths,baths,sq);
+
+  const sqftComps=comps.filter(c=>Number(c.price)>0&&Number(c.squareFootage)>0);
+  const marketPpsf=median(sqftComps.map(c=>Number(c.price)/Number(c.squareFootage)))||0;
+  const sqftAdj=(sq-fromSq)*marketPpsf;
+
+  const advancedArv=Math.max(0,lastDeal.arv+bedAdj.delta+bathAdj.delta+sqftAdj);
+  const increase=advancedArv-lastDeal.arv;
+  const L=Math.max(.01,Math.min(1,Number($('ltv').value)/100||.75));
+  const extraRefi=increase*L;
+
+  $('aBase').textContent=money(lastDeal.arv);
+  $('aArv').textContent=money(advancedArv);
+  $('aIncrease').textContent=(increase>=0?'+':'')+money(increase);
+  $('aRefi').textContent=(extraRefi>=0?'+':'')+money(extraRefi);
+  $('aValue').textContent=(increase-cost>=0?'+':'')+money(increase-cost);
+
+  const rows=[];
+  if(beds!==fromBeds)rows.push([bedAdj.label,bedAdj.delta,bedAdj.n,bedAdj.fallback]);
+  if(baths!==fromBaths)rows.push([bathAdj.label,bathAdj.delta,bathAdj.n,bathAdj.fallback]);
+  if(sq!==fromSq)rows.push(['Finished-area adjustment',sqftAdj,sqftComps.length,false]);
+
+  $('advEvidence').innerHTML=rows.length?rows.map(r=>{
+    const c=confidence(r[2]);
+    const warn=r[2]<3?' Limited market evidence — this estimate may be off.':'';
+    const fb=r[3]?' No direct paired comp was available, so a conservative fallback was used.':'';
+    return `<div class="evidence-row"><strong>${esc(r[0])}: ${r[1]>=0?'+':''}${money(r[1])}</strong><span class="conf">${c[0]}</span><div class="muted">Based on ${c[1]}.${warn}${fb}</div></div>`;
+  }).join(''):'<div class="muted">No property characteristics changed from the Simple baseline.</div>';
+
+  
+  const fmt2=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const mathParts=[];
+  mathParts.push(`<div class="math-block"><strong>Starting point</strong><div class="math-line">Simple ARV = ${money(lastDeal.arv)}</div><div class="math-line">Original = ${fromBeds} bed / ${fromBaths} bath / ${fromSq.toLocaleString()} sq ft</div><div class="math-line">Proposed = ${beds} bed / ${baths} bath / ${sq.toLocaleString()} sq ft</div></div>`);
+
+  function addCharacteristicMath(name,obj,fromVal,toVal){
+    if(Number(fromVal)===Number(toVal))return;
+    if(!obj.fallback){
+      mathParts.push(`<div class="math-block"><strong>${name} adjustment</strong>
+        <div class="math-line">Baseline group median = $${fmt2(obj.basePpsf)}/sq ft (${obj.baseCount} comps)</div>
+        <div class="math-line">Proposed group median = $${fmt2(obj.changedPpsf)}/sq ft (${obj.changedCount} comps)</div>
+        <div class="math-line">$${fmt2(obj.changedPpsf)} − $${fmt2(obj.basePpsf)} = $${fmt2(obj.changedPpsf-obj.basePpsf)}/sq ft</div>
+        <div class="math-line">$${fmt2(obj.changedPpsf-obj.basePpsf)} × ${sq.toLocaleString()} sq ft = ${obj.delta>=0?'+':''}${money(obj.delta)}</div>
+      </div>`);
+    }else{
+      mathParts.push(`<div class="math-block"><strong>${name} adjustment — fallback</strong>
+        <div class="math-line">Direct paired comp groups were not available.</div>
+        <div class="math-line">Neighborhood comp median = $${fmt2(obj.neighborhoodPpsf)}/sq ft</div>
+        <div class="math-line">$${fmt2(obj.neighborhoodPpsf)} × ${sq.toLocaleString()} sq ft × ${(obj.factor*100).toFixed(1)}% × ${fmt2(Number(toVal)-Number(fromVal))} = ${obj.delta>=0?'+':''}${money(obj.delta)}</div>
+        <div class="math-line">Confidence = VERY LOW</div>
+      </div>`);
+    }
+  }
+  addCharacteristicMath('Bedroom',bedAdj,fromBeds,beds);
+  addCharacteristicMath('Bathroom',bathAdj,fromBaths,baths);
+
+  if(sq!==fromSq){
+    mathParts.push(`<div class="math-block"><strong>Finished-area adjustment</strong>
+      <div class="math-line">Comp median = $${fmt2(marketPpsf)}/sq ft</div>
+      <div class="math-line">${(sq-fromSq).toLocaleString()} added sq ft × $${fmt2(marketPpsf)} = ${sqftAdj>=0?'+':''}${money(sqftAdj)}</div>
+      <div class="math-line">Based on ${sqftComps.length} usable comps</div>
+    </div>`);
+  }
+
+  mathParts.push(`<div class="math-block"><strong>Advanced ARV & BRRRR math</strong>
+    <div class="math-line">${money(lastDeal.arv)} ${bedAdj.delta>=0?'+':'−'} ${money(Math.abs(bedAdj.delta))} ${bathAdj.delta>=0?'+':'−'} ${money(Math.abs(bathAdj.delta))} ${sqftAdj>=0?'+':'−'} ${money(Math.abs(sqftAdj))} = <strong>${money(advancedArv)}</strong> Advanced ARV</div>
+    <div class="math-line">${money(advancedArv)} − ${money(lastDeal.arv)} = ${increase>=0?'+':''}${money(increase)} estimated appraisal increase</div>
+    <div class="math-line">${money(increase)} × ${(L*100).toFixed(0)}% LTV = ${extraRefi>=0?'+':''}${money(extraRefi)} additional refinance proceeds</div>
+    <div class="math-line">${money(increase)} − ${money(cost)} extra improvement cost = ${increase-cost>=0?'+':''}${money(increase-cost)} estimated value created</div>
+  </div>`);
+  $('advMath').innerHTML=mathParts.join('');
+  $('advOutput').classList.remove('hidden');
+});
+</script></body></html>

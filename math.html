@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simple Calculator Math — BRRRR Deal Analyzer</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f5f2;color:#17231c;margin:0}
+main{max-width:720px;margin:auto;padding:24px 16px 50px}.card{background:white;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 1px 5px #0001}
+h1{font-size:1.7rem;margin-bottom:5px}h2{font-size:1.12rem}.muted{color:#68736c;line-height:1.45}.formula{background:#f6f8f5;padding:12px;border-radius:9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+a{color:#174d32;font-weight:750;text-decoration:none}
+</style></head><body><main>
+<a href="index.html">← Back to calculator</a>
+<h1>Simple Calculator Math</h1>
+<p class="muted">This page explains the baseline calculation without changing or rerunning a property analysis. It does not make a RentCast request.</p>
+
+<div class="card"><h2>1. Property data</h2>
+<p class="muted">The Simple Calculator makes one RentCast valuation request. That response supplies the subject-property information, RentCast valuation/range, and comparable properties used by the calculator.</p></div>
+
+<div class="card"><h2>2. Simple ARV</h2>
+<p class="muted">The Simple result is the baseline ARV stored from the initial analysis. It is intentionally kept separate from any changes you test in Advanced.</p>
+<div class="formula">Simple ARV = baseline comp-supported valuation returned by the analysis</div></div>
+
+<div class="card"><h2>3. Rehab estimate</h2>
+<p class="muted">If you leave the manual rehab field blank, the calculator estimates rehab from the subject's finished square footage and your selected renovation level. A manual rehab amount overrides the automatic estimate.</p>
+<div class="formula">Automatic rehab = subject square feet × selected rehab $/sq ft</div></div>
+
+<div class="card"><h2>4. Total basis</h2>
+<div class="formula">Total basis = purchase price + rehab + other costs</div></div>
+
+<div class="card"><h2>5. Refinance</h2>
+<div class="formula">Estimated refinance = Simple ARV × selected LTV</div></div>
+
+<div class="card"><h2>6. Cash result</h2>
+<div class="formula">Cash result = estimated refinance − total basis</div>
+<p class="muted">A positive number means estimated refinance proceeds exceed the modeled basis. A negative number represents estimated cash remaining in the project.</p></div>
+
+<div class="card"><h2>7. Why Advanced is separate</h2>
+<p class="muted">Advanced starts from the frozen Simple ARV, then uses the already-returned comp set to estimate how proposed bedroom, bathroom, and finished-area changes could affect value. Those experiments never rewrite the Simple baseline.</p></div>
+
+<p class="muted">These are screening estimates, not a lender appraisal or a guarantee of refinance proceeds.</p>
+</main></body></html>
