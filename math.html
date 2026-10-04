@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simple Calculator Math</title><style>
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f2;color:#172018;margin:0}.wrap{max-width:760px;margin:auto;padding:22px 14px 50px}.card{background:white;border:1px solid #ddd;border-radius:14px;padding:16px;margin:12px 0}.muted{color:#687268}.line{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:4px 0;overflow-wrap:anywhere}a{color:#193d2b;font-weight:750;text-decoration:none}table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{text-align:left;padding:7px 4px;border-bottom:1px solid #eee}
+</style></head><body><div class="wrap"><a href="index.html">← Back to calculator</a><h1>Simple Calculator Math</h1>
+<p class="muted">This page reads the most recent analysis already stored in this browser tab. It does not call RentCast.</p><div id="content"></div>
+<script>
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Math.round(Number(n)||0));
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let d=null,p=null;try{d=JSON.parse(sessionStorage.getItem('brrrrLastAnalysisV5'));p=JSON.parse(sessionStorage.getItem('brrrrLastInputsV5'))}catch(_){}
+const el=document.getElementById('content');
+if(!d){el.innerHTML='<div class="card">Run an analysis on the calculator first, then open this page again.</div>'}
+else{
+ const rehabFormula=d.rehabIsManual?`Manual rehab override = ${money(d.rehab)}`:(Number(d.subject?.squareFootage)>0?`${Number(d.subject.squareFootage).toLocaleString()} sq ft × $${Number(d.rehabRate).toFixed(0)}/sq ft = ${money(d.rehab)}`:`No square footage returned; fallback rehab = 35% of purchase = ${money(d.rehab)}`);
+ const otherFormula=d.otherIsManual?`Manual other costs = ${money(d.otherCosts)}`:`7% × (${money(d.purchasePrice)} + ${money(d.rehab)}) = ${money(d.otherCosts)}`;
+ const maxFormula=d.otherIsManual?`${money(d.refi)} − ${money(d.rehab)} − ${money(d.otherCosts)} = ${money(d.maxPurchase)}`:`${money(d.refi)} ÷ 1.07 − ${money(d.rehab)} = ${money(d.maxPurchase)}`;
+ el.innerHTML=`
+ <div class="card"><h2>1. Simple ARV</h2><div class="line">RentCast baseline valuation = ${money(d.arv)}</div><div class="line">RentCast range = ${money(d.low)} – ${money(d.high)}</div><p class="muted">The Simple calculator does not add a fixed renovation percentage to ARV. Renovation level estimates cost; it does not automatically create value.</p></div>
+ <div class="card"><h2>2. Rehab</h2><div class="line">${rehabFormula}</div></div>
+ <div class="card"><h2>3. Other costs</h2><div class="line">${otherFormula}</div></div>
+ <div class="card"><h2>4. Total basis</h2><div class="line">${money(d.purchasePrice)} + ${money(d.rehab)} + ${money(d.otherCosts)} = ${money(d.totalBasis)}</div></div>
+ <div class="card"><h2>5. Refinance & cash</h2><div class="line">${money(d.arv)} × ${(Number(d.ltv)*100).toFixed(0)}% = ${money(d.refi)} refinance</div><div class="line">${money(d.refi)} − ${money(d.totalBasis)} = ${money(d.cashResult)} cash result</div><div class="line">${money(d.arv)} − ${money(d.refi)} = ${money(d.equity)} equity remaining</div></div>
+ <div class="card"><h2>6. Max purchase</h2><div class="line">${maxFormula}</div><p class="muted">${d.otherIsManual?'Manual other costs are treated as fixed.':'Because automatic other costs are 7% of purchase + rehab, max purchase solves that 7% relationship instead of subtracting today’s other-cost number.'}</p></div>
+ <div class="card"><h2>7. Returned comps</h2><div style="overflow-x:auto"><table><thead><tr><th>Address</th><th>Price</th><th>Bed/Bath</th><th>Sq Ft</th><th>Similarity</th></tr></thead><tbody>${(d.comps||[]).map(c=>`<tr><td>${esc(c.formattedAddress||c.addressLine1||'—')}</td><td>${money(c.price)}</td><td>${c.bedrooms??'—'} / ${c.bathrooms??'—'}</td><td>${c.squareFootage?Number(c.squareFootage).toLocaleString():'—'}</td><td>${c.correlation!=null?Math.round(Number(c.correlation)*100)+'%':'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+</script></div></body></html>
